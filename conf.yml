@@ -3,7 +3,7 @@ info:
   identifier: "desec"
   description: "Connect deSEC domains to your panel and point them at your servers. Allocate a whole domain or a subdomain to a server with one click, and let players see their server address on the console page."
   flags: ""
-  version: "0.1.0"
+  version: "0.1.1"
   target: "beta-2026-08"
   author: "deSEC Domains"
   icon: ""
