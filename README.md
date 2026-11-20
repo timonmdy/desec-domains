@@ -1,86 +1,62 @@
-# MC Panels
+# deSEC Domains
 
-![MC Panels banner](docs/mc-panels-banner.svg)
+Connect [deSEC](https://desec.io) domains to your Pterodactyl panel and point them at your game servers.
 
-A live Minecraft server dashboard for Pterodactyl.
-
-| Overview | System Info | Console issues |
-| --- | --- | --- |
-| ![Overview dashboard](docs/screenshots/dashboard.png) | ![System Info](docs/screenshots/system-info.png) | ![Console issues](docs/screenshots/console-issues.png) |
-
-...and many more
+- **Extension settings** hold the deSEC API token and the SRV defaults. They rarely need changes.
+- **Domains** is the administrator page for connecting domains and managing their records.
+- A **Domains tab** on every server allocates a whole domain or a subdomain to that server.
+- Server users see their address on the **console page**.
 
 ## Install or update
 
-1. Install blueprint for your pterodactyl instance
-2. Download `mcpanels.blueprint` and copy it to your Pterodactyl panel folder.
+1. Install Blueprint for your Pterodactyl instance.
+2. Download `desec.blueprint` and copy it to your Pterodactyl panel folder.
 3. Run:
 
    ```bash
    cd /var/www/pterodactyl
-   blueprint -install mcpanels
+   blueprint -install desec
    ```
 
 Run the same command to update an existing installation.
 
-## Documentation
+## First steps
 
-See the [MC Panels Wiki](https://github.com/timonmdy/mc-panels/wiki) for:
+1. Create an API token in your deSEC account (**Token Management**).
+2. Open **Admin → Extensions → deSEC Domains**, paste the token under **deSEC API**, save, and press **Test the stored token**.
+3. Open **Domains** and connect a domain that already exists in your deSEC account.
+4. Open a server in the admin area, choose the **Domains** tab, and allocate a subdomain or the whole domain.
 
-- [Troubleshooting Laravel 500s and the cron fix](https://github.com/timonmdy/mc-panels/wiki/Troubleshooting-Laravel-500s)
-- [Security and permissions](https://github.com/timonmdy/mc-panels/wiki/Security)
-- [Coding guidelines](https://github.com/timonmdy/mc-panels/wiki/Coding-Guidelines)
-- [Adding panels](https://github.com/timonmdy/mc-panels/wiki/Adding-Panels)
+The extension adds the **Domains** entry to the admin sidebar and the **Domains** tab to the admin server pages. The server's native tabs are also shown on the Domains page, with **Domains** marked active. A small script in the admin layout adds the tab to the server navigation.
 
-## Security and permissions
+## What an allocation creates
 
-- Open **Panels → … → Permissions** to manage access for this server. Only the server owner and Pterodactyl root administrators can change permissions.
-- **Server-wide defaults** apply to every signed-in Pterodactyl user who already has access to the server. Individual user grants add to these defaults.
-- Grant additional permissions by the email address of an existing Pterodactyl account. The user must also be allowed to open the server in Pterodactyl; MC Panels permissions do not grant panel, console, file, or power access.
-- Users without dashboard access can request it from the Panels page. Their request appears in the server's Permissions modal; approving grants dashboard view only. Grant more permissions separately when needed.
-- Layout editing, profile management, data editing/deletion, and player IP access prompt for confirmation before they are granted. Data management also includes data viewing; elevated access includes dashboard viewing.
+| Allocation | SRV records | Players connect with |
+| --- | --- | --- |
+| Subdomain `survival` on `example.com` | `_minecraft._tcp.survival` | `survival.example.com` |
+| Whole domain `example.com` | `_minecraft._tcp` and, optionally, a wildcard `*` | `example.com` and `anything.example.com` |
 
-## Available panels
+Every record uses the defaults from the extension settings: priority `0`, weight `0`, the server's main allocation port and the target `[subdomain.]domain`.
 
-| Panel | Description |
-| --- | --- |
-| Status bar | Server health, resource averages, stability, and players |
-| Online players | Searchable current-player list |
-| Online players — stat | Current online count, average, peak, and trend |
-| Online players — history | Online-player count over time |
-| Registered players | Player registry, bans, and IP history (permission required) |
-| Registered players — stat | Registered-player count, average, peak, and trend |
-| Registered players — history | Registered-player count over time |
-| CPU — stat | Current CPU use, average, peak, and trend |
-| CPU — history | CPU use over time |
-| RAM — stat | Current memory use, average, peak, and trend |
-| RAM — history | Memory use over time |
-| Network upstream — stat | Current upload rate, average, peak, and trend |
-| Network upstream — history | Upload rate over time |
-| Network downstream — stat | Current download rate, average, peak, and trend |
-| Network downstream — history | Download rate over time |
-| TPS — stat | Current server ticks per second |
-| TPS — history | TPS over time |
-| Disk usage | Disk usage and warning thresholds |
-| Uptime | Time since the latest server start |
-| Availability | Uptime percentage and outages |
-| Failed connections | Rejected joins grouped by reason |
-| Console issues | Grouped console errors and warnings with per-panel regex filters |
-| System info | Java and host operating-system details |
-| Server info | Software, Minecraft version, address, and region |
-| Worlds & Properties | World data and server properties |
-| Note | Custom text and reminders |
-| External link | Shortcut to a configured URL |
+An SRV target must resolve to an address. If the target lies inside the connected domain and has no A or AAAA record yet, the extension creates one from the allocation IP and removes it again on release. **Existing records are never modified or deleted.** If an existing address record points elsewhere, the allocation shows a note.
+
+A background job keeps deSEC in step with the panel every five minutes: it updates the port or address when a server's main allocation changes and removes the records of deleted servers. It makes no deSEC request while nothing changed.
 
 ## Behavior notes
 
-- The panel scheduler must be running for metrics and player history.
-- TPS collection is disabled by default. On Fabric 1.20.3+, use the vanilla `tick query` console command as the TPS source. Console queries add output to the server log; increase the TPS interval or configure an HTTP bridge for quiet collection.
-- For command-based TPS collection, select the matching output format in **TPS and world data**: Fabric `tick query`, Forge `forge tps`, or `spark tps`. Spark output includes five TPS windows; MC Panels records the first (5-second) value. Custom output can use a PHP regex with named `tps` and optional `mspt` captures.
-- IP history is collected from `logs/latest.log` when **Keep player IP history** is greater than `0`. Owners, root administrators, and keys with `ips.view` can see addresses.
-- Dashboard animations and detailed debug logging are in the extension’s **General** settings. Dragging previews panels smoothly moving into place when animations are enabled.
-- Scheduled collector debug messages are written to the scheduler’s stderr rather than Laravel’s shared daily log, so a CLI scheduler run does not create a log file that the web process cannot write to. Web-request diagnostics still use Laravel logging.
-- Data Explorer is limited to the current server; edits and deletions require confirmation.
+- **Wildcard SRV records answer every service name** under the domain that has no record of its own, not only `_minecraft._tcp`. Do not use the wildcard on a domain that also serves mail, Matrix, XMPP or similar services.
+- **One token or one per domain.** The default token covers every domain. A domain can have its own token instead, which is useful with deSEC's scoped tokens. See [docs/DESEC.md](docs/DESEC.md).
+- **deSEC rate limits.** deSEC allows 2000 requests per day per account and limits changes per domain. Console pages read only the panel database, and reads in the admin area are cached.
+- **The admin pages live under the extension page** (`/admin/extensions/desec`). Blueprint does not allow extensions to register routes such as `/admin/domains`.
+- Detailed debug logging is in the extension's **General** settings. Scheduled job output goes to the scheduler's stderr; web requests use the Laravel log. Tokens are never logged.
+- The panel scheduler (`php artisan schedule:run` every minute) must be running for the reconcile job.
+
+## Documentation
+
+- [Architecture](docs/ARCHITECTURE.md)
+- [Coding guidelines](docs/CODING_GUIDELINES.md)
+- [deSEC notes: tokens, rate limits and DNS behavior](docs/DESEC.md)
+- [Security policy](SECURITY.md)
 
 ## Development
 
@@ -89,10 +65,6 @@ npm install
 npm run build
 ```
 
-The build type-checks the dashboard and creates `dist/mcpanels.blueprint`.
+The build type-checks the dashboard and creates `dist/desec.blueprint`. Pull requests run the same typecheck and packaging build.
 
-Pull requests run the same typecheck and packaging build. See the [Wiki](https://github.com/timonmdy/mc-panels/wiki) for [coding guidelines](https://github.com/timonmdy/mc-panels/wiki/Coding-Guidelines) and [panel development](https://github.com/timonmdy/mc-panels/wiki/Adding-Panels).
-
-### Adding a TPS command reader
-
-Add a class implementing `Minecraft\TpsReaders\TpsReader` in `app/Minecraft/TpsReaders/` with a filename ending in `Format.php`. Implement `key()`, `label()`, `command()`, and `parse()`. The registry discovers these files automatically and builds the admin selection from each reader's label and command; no central list needs editing. `parse()` receives each cleaned log message plus per-scan state and settings, and should return `['type' => 'tps', 'value' => float|null, 'mspt' => float]` when it recognizes a reading. Use `TpsReading::fromMspt()` when the output only provides milliseconds per tick.
+For live development, mirror the repository into a panel with `PANEL_DIR=/var/www/pterodactyl npm run dev:sync`, then run `blueprint -build` in the panel directory.

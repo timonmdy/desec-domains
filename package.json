@@ -1,8 +1,8 @@
 {
-  "name": "mcpanels",
+  "name": "desec",
   "private": true,
-  "version": "0.2.3",
-  "description": "MC Panels - Pterodactyl Blueprint extension",
+  "version": "0.1.0",
+  "description": "deSEC Domains - Pterodactyl Blueprint extension",
   "scripts": {
     "typecheck": "tsc --noEmit",
     "pack": "bash scripts/pack.sh",

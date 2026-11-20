@@ -19,10 +19,10 @@ export const palette = {
 export type ColorToken = keyof typeof palette;
 
 export const color = (Object.keys(palette) as ColorToken[]).reduce(
-    (tokens, key) => ({ ...tokens, [key]: `var(--mcp-${key})` }),
+    (tokens, key) => ({ ...tokens, [key]: `var(--dsc-${key})` }),
     {} as Record<ColorToken, string>
 );
 
-export const cssVariables = (Object.keys(palette) as ColorToken[]).map((key) => `--mcp-${key}: ${palette[key]};`).join('\n');
+export const cssVariables = (Object.keys(palette) as ColorToken[]).map((key) => `--dsc-${key}: ${palette[key]};`).join('\n');
 
 export const radius = { sm: '8px', md: '12px' } as const;

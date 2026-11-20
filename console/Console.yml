@@ -1,2 +1,1 @@
-- { Signature: 'collect', Description: 'Collect MC Panels metrics for all enabled servers', Path: 'collect.php', Interval: '* * * * *' }
-- { Signature: 'prune', Description: 'Delete expired MC Panels data', Path: 'prune.php', Interval: 'daily' }
+- { Signature: 'reconcile', Description: 'Sync deSEC SRV records with server allocations and remove records of deleted servers', Path: 'reconcile.php', Interval: '*/5 * * * *' }

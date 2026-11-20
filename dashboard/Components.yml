@@ -1,3 +1,3 @@
-Navigation:
-  Routes:
-    - { Name: 'Panels', Path: '/mcpanels', Type: 'server', Component: 'pages/McPanelsPage/McPanelsPage', AdminOnly: 'false' }
+Server:
+  Terminal:
+    AfterInformation: 'features/server-domains/ServerDomainsCard'

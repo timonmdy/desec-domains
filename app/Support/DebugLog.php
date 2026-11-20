@@ -1,6 +1,6 @@
 <?php
 
-namespace Pterodactyl\BlueprintFramework\Extensions\mcpanels\Support;
+namespace Pterodactyl\BlueprintFramework\Extensions\desec\Support;
 
 use Illuminate\Support\Facades\Log;
 
@@ -12,7 +12,7 @@ final class DebugLog
             return;
         }
 
-        $message = 'MC Panels: ' . $event;
+        $message = 'deSEC Domains: ' . $event;
         if (PHP_SAPI === 'cli') {
             fwrite(STDERR, $message . ' ' . json_encode($context, JSON_PARTIAL_OUTPUT_ON_ERROR) . PHP_EOL);
 

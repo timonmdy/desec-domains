@@ -3,7 +3,7 @@ import { cssVariables } from './theme.config';
 
 export const ThemeRoot = styled.div<{ $animationsEnabled?: boolean }>`
     ${cssVariables}
-    color: var(--mcp-text);
+    color: var(--dsc-text);
     font-size: 14px;
     line-height: 1.4;
     font-variant-numeric: tabular-nums;

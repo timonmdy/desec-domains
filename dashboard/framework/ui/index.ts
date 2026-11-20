@@ -1,17 +1,3 @@
 export * from './Badge/Badge';
-export * from './Button/Button';
-export * from './Collapsible/Collapsible';
-export * from './Confirmation';
-export * from './EmptyState/EmptyState';
-export * from './Field/Field';
 export * from './Icon/Icon';
-export type { IconName } from './Icon/icons.config';
 export * from './IconButton/IconButton';
-export * from './Input/Input';
-export * from './Menu/Menu';
-export * from './Modal/Modal';
-export * from './Portal/Portal';
-export * from './Segmented/Segmented';
-export * from './Select/Select';
-export * from './Spinner/Spinner';
-export * from './Toggle/Toggle';

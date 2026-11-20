@@ -1,12 +1,12 @@
 <?php
 
-namespace Pterodactyl\BlueprintFramework\Extensions\mcpanels\Support;
+namespace Pterodactyl\BlueprintFramework\Extensions\desec\Support;
 
 use Pterodactyl\Contracts\Repository\SettingsRepositoryInterface;
 
 class Settings
 {
-    private const KEY = 'mcpanels::config';
+    private const KEY = 'desec::config';
 
     private ?array $cache = null;
 
@@ -29,55 +29,59 @@ class Settings
         return $this->all()[$key] ?? null;
     }
 
-    public function save(array $input): void
+    /** Plain-text default token. Never hand this to a view or an API response. */
+    public function apiToken(): string
     {
-        $fields = SettingsSchema::fields();
-        $clean = [];
-        foreach ($fields as $key => $field) {
-            $clean[$key] = $this->coerce($field, $input[$key] ?? null);
+        return SecretBox::open((string) $this->get('apiToken'));
+    }
+
+    /** Values safe to render in the admin form: secrets are replaced by an empty string. */
+    public function formValues(): array
+    {
+        $values = $this->all();
+        foreach (SettingsSchema::fields() as $key => $field) {
+            if ($field['type'] === 'secret') {
+                $values[$key] = '';
+            }
         }
 
-        if (Duration::parseList($clean['timeSpans']) === []) {
-            $clean['timeSpans'] = $fields['timeSpans']['default'];
+        return $values;
+    }
+
+    public function secretIsSet(string $key): bool
+    {
+        return SecretBox::open((string) $this->get($key)) !== '';
+    }
+
+    public function save(array $input): void
+    {
+        $clean = [];
+        foreach (SettingsSchema::fields() as $key => $field) {
+            $clean[$key] = $field['type'] === 'secret'
+                ? $this->secret($key, $input)
+                : $this->coerce($field, $input[$key] ?? null);
         }
 
         $this->store->set(self::KEY, json_encode($clean));
         $this->cache = null;
     }
 
-    public function timeSpans(): array
-    {
-        return Duration::parseList((string) $this->get('timeSpans'));
-    }
-
-    public function defaultTimeSpan(): string
-    {
-        $keys = array_column($this->timeSpans(), 'key');
-        $wanted = (string) $this->get('defaultTimeSpan');
-
-        return in_array($wanted, $keys, true) ? $wanted : ($keys[0] ?? '1h');
-    }
-
     public function publicConfig(): array
     {
         return [
-            'timeSpans' => $this->timeSpans(),
-            'defaultTimeSpan' => $this->defaultTimeSpan(),
-            'maxPoints' => (int) $this->get('maxPoints'),
-            'avatarApiUrl' => (string) $this->get('avatarApiUrl'),
             'debugLogging' => (bool) $this->get('debugLogging'),
-            'animationsEnabled' => (bool) $this->get('animationsEnabled'),
-            'polling' => [
-                'liveSeconds' => (int) $this->get('liveSeconds'),
-                'seriesSeconds' => (int) $this->get('seriesSeconds'),
-                'listSeconds' => (int) $this->get('listSeconds'),
-            ],
-            'features' => [
-                'tps' => $this->get('tpsMode') !== 'off',
-                'bridge' => (string) $this->get('bridgeApiUrl') !== '',
-                'geo' => (bool) $this->get('geoEnabled'),
-            ],
         ];
+    }
+
+    private function secret(string $key, array $input): string
+    {
+        if (filter_var($input[$key . '_clear'] ?? false, FILTER_VALIDATE_BOOLEAN)) {
+            return '';
+        }
+
+        $typed = trim((string) ($input[$key] ?? ''));
+
+        return $typed !== '' ? SecretBox::seal($typed) : (string) $this->get($key);
     }
 
     private function coerce(array $field, mixed $value): mixed

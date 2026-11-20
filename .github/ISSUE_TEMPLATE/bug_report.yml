@@ -1,5 +1,5 @@
 name: Bug report
-description: Report a reproducible problem with MC Panels.
+description: Report a reproducible problem with deSEC Domains.
 title: "[Bug]: "
 labels:
   - bug
@@ -7,8 +7,8 @@ body:
   - type: input
     id: version
     attributes:
-      label: MC Panels version
-      placeholder: "0.2.3"
+      label: deSEC Domains version
+      placeholder: "0.1.0"
     validations:
       required: true
   - type: input

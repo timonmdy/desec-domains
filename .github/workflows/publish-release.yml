@@ -63,12 +63,12 @@ jobs:
       - name: Build extension
         run: npm run build
       - name: Verify package artifact
-        run: test -s dist/mcpanels.blueprint
+        run: test -s dist/desec.blueprint
       - name: Upload Blueprint package
         uses: actions/upload-artifact@v7
         with:
-          name: mcpanels-blueprint
-          path: dist/mcpanels.blueprint
+          name: desec-blueprint
+          path: dist/desec.blueprint
           if-no-files-found: error
 
   publish:
@@ -80,7 +80,7 @@ jobs:
       - name: Download Blueprint package
         uses: actions/download-artifact@v8
         with:
-          name: mcpanels-blueprint
+          name: desec-blueprint
           path: dist
       - name: Create draft release
         env:
@@ -88,9 +88,9 @@ jobs:
           VERSION: ${{ needs.build.outputs.version }}
           TARGET_SHA: ${{ github.event.pull_request.merge_commit_sha }}
         run: |
-          gh release create "v$VERSION" dist/mcpanels.blueprint \
+          gh release create "v$VERSION" dist/desec.blueprint \
             --repo "$GITHUB_REPOSITORY" \
             --draft \
             --target "$TARGET_SHA" \
-            --title "DPRO v$VERSION" \
+            --title "deSEC Domains v$VERSION" \
             --generate-notes

@@ -1,11 +1,11 @@
 info:
-  name: "MC Panels"
-  identifier: "mcpanels"
-  description: "Give your Minecraft server a dashboard that feels at home in Pterodactyl. Track live performance, players, uptime and more, then make it your own with flexible panels, profiles and templates."
+  name: "deSEC Domains"
+  identifier: "desec"
+  description: "Connect deSEC domains to your panel and point them at your servers. Allocate a whole domain or a subdomain to a server with one click, and let players see their server address on the console page."
   flags: ""
-  version: "0.2.3"
-  target: "beta-2026-01"
-  author: "MC Panels"
+  version: "0.1.0"
+  target: "beta-2026-08"
+  author: "deSEC Domains"
   icon: ""
   website: ""
 
@@ -13,7 +13,7 @@ admin:
   view: "admin/view.blade.php"
   controller: "admin/controller.php"
   css: ""
-  wrapper: ""
+  wrapper: "admin/wrapper.blade.php"
 
 dashboard:
   css: ""
@@ -26,7 +26,7 @@ data:
   console: "console"
 
 requests:
-  views: ""
+  views: "admin/views"
   app: "app"
   routers:
     application: ""

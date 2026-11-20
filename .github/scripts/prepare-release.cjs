@@ -75,10 +75,10 @@ if (confVersions.length !== 1) {
     throw new Error('conf.yml must contain exactly one top-level extension version.');
 }
 
-const bugReportVersionPattern = /(^  - type: input\r?\n    id: version\r?\n    attributes:\r?\n      label: MC Panels version\r?\n      placeholder: ")[^"]+(")$/gm;
+const bugReportVersionPattern = /(^  - type: input\r?\n    id: version\r?\n    attributes:\r?\n      label: deSEC Domains version\r?\n      placeholder: ")[^"]+(")$/gm;
 const bugReportVersions = [...bugReport.matchAll(bugReportVersionPattern)];
 if (bugReportVersions.length !== 1) {
-    throw new Error('bug_report.yml must contain exactly one MC Panels version placeholder.');
+    throw new Error('bug_report.yml must contain exactly one deSEC Domains version placeholder.');
 }
 
 packageJson.version = version;
